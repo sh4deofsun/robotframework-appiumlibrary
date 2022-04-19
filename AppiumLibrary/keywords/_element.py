@@ -41,6 +41,15 @@ class _ElementKeywords(KeywordGroup):
         self._info("Clicking element '%s'." % locator)
         self._element_find(locator, True, True).click()
 
+    def click_element_from_list_by_index(self, locator, index):
+        """Click element identified by `locator`.
+
+        Key attributes for arbitrary elements are `index` and `name`. See
+        `introduction` for details about locating elements.
+        """
+        self._info("Clicking element '%s'." % locator)
+        self._element_find(locator=locator, first_only=False, required=True, index=index).click()
+
     def click_button(self, index_or_name):
         """ Click button """
         _platform_class_dict = {'ios': 'UIAButton',
@@ -605,7 +614,27 @@ class _ElementKeywords(KeywordGroup):
         except Exception as e:
             raise e
 
-    def _element_find(self, locator, first_only, required, tag=None):
+    # def _element_find(self, locator, first_only, required, tag=None):
+    #     application = self._current_application()
+    #     elements = None
+    #     if isstr(locator):
+    #         _locator = locator
+    #         elements = self._element_finder.find(application, _locator, tag)
+    #         if required and len(elements) == 0:
+    #             raise ValueError("Element locator '" + locator + "' did not match any elements.")
+    #         if first_only:
+    #             if len(elements) == 0: return None
+    #             return elements[0]
+    #     elif isinstance(locator, WebElement):
+    #         if first_only:
+    #             return locator
+    #         else:
+    #             elements = [locator]
+    #     # do some other stuff here like deal with list of webelements
+    #     # ... or raise locator/element specific error if required
+    #     return elements
+
+    def _element_find(self, locator, first_only, required, tag=None, index=0):
         application = self._current_application()
         elements = None
         if isstr(locator):
@@ -616,6 +645,8 @@ class _ElementKeywords(KeywordGroup):
             if first_only:
                 if len(elements) == 0: return None
                 return elements[0]
+            else:
+                return elements[index]
         elif isinstance(locator, WebElement):
             if first_only:
                 return locator
@@ -664,3 +695,4 @@ class _ElementKeywords(KeywordGroup):
         if element is not None:
             return element.is_displayed()
         return None
+
