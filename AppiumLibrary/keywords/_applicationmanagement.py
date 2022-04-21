@@ -50,9 +50,24 @@ class _ApplicationManagementKeywords(KeywordGroup):
         """
         desired_caps = kwargs
         application = webdriver.Remote(str(remote_url), desired_caps)
-
         self._debug('Opened application with session id %s' % application.session_id)
+        return self._cache.register(application, alias)
 
+    def open_application_without_ssl_check(self, remote_url, alias=None, **kwargs):
+        """Opens a new application to given Appium server.
+        Capabilities of appium server, Android and iOS,
+        Please check https://github.com/appium/appium/blob/master/docs/en/writing-running-appium/server-args.md
+        | *Option*            | *Man.* | *Description*     |
+        | remote_url          | Yes    | Appium server url |
+        | alias               | no     | alias             |
+
+        Examples:
+        | Open Application | http://localhost:4723/wd/hub | alias=Myapp1         | platformName=iOS      | platformVersion=7.0            | deviceName='iPhone Simulator'           | app=your.app                         |
+        | Open Application | http://localhost:4723/wd/hub | platformName=Android | platformVersion=4.2.2 | deviceName=192.168.56.101:5555 | app=${CURDIR}/demoapp/OrangeDemoApp.apk | appPackage=com.netease.qa.orangedemo | appActivity=MainActivity |
+        """
+        desired_caps = kwargs
+        application = webdriver.Remote(str(remote_url), desired_caps, strict_ssl=False)
+        self._debug('Opened application with session id %s' % application.session_id)
         return self._cache.register(application, alias)
 
     def switch_application(self, index_or_alias):

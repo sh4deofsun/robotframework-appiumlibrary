@@ -41,7 +41,7 @@ class _ElementKeywords(KeywordGroup):
         self._info("Clicking element '%s'." % locator)
         self._element_find(locator, True, True).click()
 
-    def click_element_from_list_by_index(self, locator, index):
+    def click_element_from_list_by_index(self, locator, index=0):
         """Click element identified by `locator`.
 
         Key attributes for arbitrary elements are `index` and `name`. See
@@ -68,7 +68,19 @@ class _ElementKeywords(KeywordGroup):
         use `locator` with `Get Web Elements` instead.
 
         """
-        self._element_find_by_text(text,exact_match).click()
+        self._element_find_by_text(text, exact_match).click()
+
+    def click_text_from_list_by_index(self, text, exact_match=False, index=0):
+        """Click text identified by ``text``.
+
+        By default tries to click first text involves given ``text``, if you would
+        like to click exactly matching text, then set ``exact_match`` to `True`.
+
+        If there are multiple use  of ``text`` and you do not want first one,
+        use `locator` with `Get Web Elements` instead.
+
+        """
+        self._element_find_by_text_with_index(text, exact_match=exact_match, index=index).click()
 
     def input_text(self, locator, text):
         """Types the given `text` into text field identified by `locator`.
@@ -673,6 +685,24 @@ class _ElementKeywords(KeywordGroup):
             else:
                 _xpath = u'//*[contains(@{},"{}")]'.format('text', text)
             return self._element_find(_xpath, True, True)
+
+    def _element_find_by_text_with_index(self, text, exact_match=False, index=0):
+        if self._get_platform() == 'ios':
+            element = self._element_find(text, True, False)
+            if element:
+                return element
+            else:
+                if exact_match:
+                    _xpath = u'//*[@value="{}" or @label="{}"]'.format(text, text)
+                else:
+                    _xpath = u'//*[contains(@label,"{}") or contains(@value, "{}")]'.format(text, text)
+                return self._element_find(_xpath, True, True, index=index)
+        elif self._get_platform() == 'android':
+            if exact_match:
+                _xpath = u'//*[@{}="{}"]'.format('text', text)
+            else:
+                _xpath = u'//*[contains(@{},"{}")]'.format('text', text)
+            return self._element_find(_xpath, True, True, index=index)
 
     def _get_text(self, locator):
         element = self._element_find(locator, True, True)
